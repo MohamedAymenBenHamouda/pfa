@@ -1,34 +1,3 @@
-const articlesInitiaux = [
-    {
-        nom: "HP", 
-        categorie: "Ordinateur", 
-        quantite: 5, 
-        prix: 200000,
-    },
-    {
-        nom: "Imprimante scanner", 
-        categorie: "Imprimante", 
-        quantite: 8, 
-        prix: 50000,
-    },
-    {
-        nom: "Cable VGA", 
-        categorie: "Accessoire", 
-        quantite: 89, 
-        prix: 1500,
-        fabrication: "2022-09-18T18:55:00",
-        expiration: "2022-09-16T18:57:00"
-    },
-    {
-        nom: "souris", 
-        categorie: "Accessoire", 
-        quantite: 90, 
-        prix: 6000,
-    }
-];
-
-
-
 // Fonction pour ajouter un article au tableau
 function ajouterArticle(article) {
     const tableBody = document.getElementById('table-body');
@@ -56,29 +25,45 @@ window.onload = function() {
     });
 }
 
-// Gérer l'ajout d'un nouvel article
 document.getElementById('ajouter').addEventListener('click', function() {
-    const ID = parseInt(document.getElementById('ID').value);
     const nom = document.getElementById('nom').value;
     const categorie = document.getElementById('categorie').value;
     const quantite = parseInt(document.getElementById('quantite').value);
     const prix = parseInt(document.getElementById('prix').value);
 
-    
-    // Validation de base
-    if (!ID || !nom || !prix ) {
-        alert('Veuillez remplir tous les champs requis.');
+    // Validation
+    if (!nom || !categorie || isNaN(quantite) || isNaN(prix)) {
+        alert('Veuillez remplir tous les champs correctement.');
         return;
     }
     
-    // Créer un nouvel article
+    // Création de l'objet article
     const nouvelArticle = {
-        ID: ID,
         nom: nom,
         categorie: categorie,
         quantite: quantite,
         prix: prix,
     };
+     // Envoyer les données au backend
+     fetch("http://localhost:8080/api/produits", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(nouvelArticle)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Erreur lors de l'ajout du produit");
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log("Produit ajouté avec succès:", data);
+        ajouterArticle(data); // Ajouter l'article retourné par le backend à la table
+    })
+    .catch(error => console.error("Erreur:", error));
+
     
     // Ajouter au tableau
     ajouterArticle(nouvelArticle);
